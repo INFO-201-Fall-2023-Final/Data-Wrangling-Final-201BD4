@@ -51,3 +51,19 @@
   group3<-group_by(df,Player, Season, RK, OFF,Rk, OPS._2)
   summar<-summarize(group3)
   
+  player_szn3<-c()
+  
+  x=1
+  y=1
+  for(i in 1:93){
+    pp<-df$Rk[x]
+    dd<-df$RK[y]
+    tes231<- pp+dd
+    player_szn3<-append(player_szn3, tes231)
+    x<-x+1
+    y<-y+1  
+  }
+  
+  df$comb_rnk<-player_szn3
+  
+
