@@ -75,7 +75,7 @@ ui <- navbarPage("Baseball's Greatest Hitting Season",
                               radioButtons(
                                 inputId = "hit",
                                 label = "How many times did these famous hitters appear in the dataset?",
-                                choices = list("Barry Bonds" = 1, "Babe Ruth" = 2, "Ty Cobb"=3, "Albert Pujols"=4, "Dan Musial"=5, "Rodgers Hornsby"=6),
+                                choices = list("Barry Bonds" = 1, "Babe Ruth" = 2, "Ty Cobb"=3, "Albert Pujols"=4, "Stan Musial"=5, "Rodgers Hornsby"=6),
                               )
                             ),
                             
@@ -86,13 +86,15 @@ ui <- navbarPage("Baseball's Greatest Hitting Season",
                             ),
                             
                           ),
+                          img("", src = "https://cdn.britannica.com/58/173158-050-722570F9/Baseball-legend-Stan-the-Man-Musial.jpg?w=400&h=300&c=crop"),
                  ),
                  tabPanel("Advanced Sabermetrics",
                           titlePanel("Advanced Sabermetrics"),
-                          p("On this page we have the scatterplot for our basic stats. The further to the top right of the graph, the better
-                            the season according to our research, as the player will have a more home runs and a better batting average. According to this graph,
+                          p("On this page we have the scatterplot for our sabermetrics. The further to the top right of the graph, the better
+                            the season according to our research, as the player will have a better WAAO and a better OPS+. According to this graph,
                           we would likely conclude that Barry Bonds had the best ever season in 2001. However, if we wanted to factor in Barry Bonds
-                            potential steroid use, that would instead fall to Babe Ruth in either 1920 or 1921, depending on preference. It is
+                            potential steroid use, that would instead fall to Babe Ruth in either 1920 or 1921, depending on preference. All
+                            players in the data set can be scrolled through individually to compare their seasons, or it can be done wholly. It is
                             interesting to note that these seasons are extremely highly regarded in baseball history already, not necessarily
                             proving our point, but suggesting that our data is more likely sound."),
                           selectInput("player", "Select Player", choices = c("All", unique(df$PLAYER))),  # Dropdown for player selection
@@ -100,13 +102,13 @@ ui <- navbarPage("Baseball's Greatest Hitting Season",
                  ),
                  tabPanel("Basic Stats",
                           titlePanel("Basic Stats"),
-                          p("On this page we have the scatterplot for our sabermetrics. The further to the top right of the graph, the better
-                            the season according to our research, as the player will have a better WAAO and a better OPS+. According to this graph,
-                          we would likely conclude that Barry Bonds had the best ever season in 2001. However, if we wanted to factor in Barry Bonds
-                            potential steroid use, that would instead fall to Babe Ruth in either 1920 or 1921, depending on preference. It is
-                            interesting to note that these seasons are extremely highly regarded in baseball history already, not necessarily
-                            proving our point, but suggesting that our data is more likely sound.")
-                          ),
+                          p("On this page we have the scatterplot for our basic stats. On this scatterplot, a player would ideally again 
+                            be in the top right of the graph, as they would have the highest batting average and most home runs in a season. As
+                            shown, this is much more open to interpretation as there is no true winner, so how you value batting average vs
+                            home runs will come into play about who is the best based on this. Once again, players can be scrolled through.
+                            Note: Barry Bonds and Sammy Sosa have potential steroid use violations."),
+                          selectInput("player2", "Select Player", choices = c("All", unique(df$PLAYER))), 
+                          plotlyOutput("scatterplot2"),),
 )
 
 
@@ -143,6 +145,25 @@ server <- function(input, output) {
     p <- add_text(p, text = ~PLAYER, showlegend = FALSE, textposition = "top right")
     
     p <- layout(p, title = "WAAO vs OPS+", xaxis = list(title = "WAAO"), yaxis = list(title = "OPS+"),
+                showlegend = TRUE)
+    
+    p  # Return the plotly plot
+  })
+  output$scatterplot2 <- renderPlotly({
+    filtered_df <- df  # Initialize with the full dataset
+    
+    # Check if "All" or a specific player is selected
+    if (input$player2 != "All") {
+      filtered_df <- df[df$PLAYER == input$player2, ]  # Filter dataframe based on selected player
+    }
+    
+    # Create scatter plot using plotly
+    p <- plot_ly(data = filtered_df, x = ~HR, y = ~BA, text = ~PLAYER, color = ~factor(YEAR),
+                 type = 'scatter', mode = 'markers')
+    
+    p <- add_text(p, text = ~PLAYER, showlegend = FALSE, textposition = "top right")
+    
+    p <- layout(p, title = "Home Runs vs Batting Average", xaxis = list(title = "Home Runs"), yaxis = list(title = "Batting Average"),
                 showlegend = TRUE)
     
     p  # Return the plotly plot
