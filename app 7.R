@@ -56,11 +56,12 @@ server <- function(input, output) {
     }
   })
   output$scatterplot <- renderPlot({
-    ggplot(df, aes(x = WAAO, y = OPS._2, label = PLAYER)) +
-      geom_point(size = 3, color = "blue") +
-      geom_text(size = 3, vjust = -0.5) +  # Adjust label position
+    ggplot(df, aes(x = WAAO, y = OPS._2, label = PLAYER, color = factor(PLAYER))) +
+      geom_point(size = 3) +
+      geom_text(size = 3, vjust = -0.5) +
       labs(title = "WAAO vs OPS._2", x = "WAAO", y = "OPS._2") +
-      theme_minimal()
+      scale_color_discrete(name = "PLAYER") + 
+     theme(legend.position = "bottom", legend.box = "horizontal")
   })
 }
 
