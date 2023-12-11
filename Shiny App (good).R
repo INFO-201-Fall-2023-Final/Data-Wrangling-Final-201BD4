@@ -83,21 +83,30 @@ ui <- navbarPage("Baseball's Greatest Hitting Season",
                             mainPanel(
                               textOutput(outputId="hitScore"),
                               tags$head(tags$style("#hitScore{font-size:25px}")),
+                            ),
+                            
                           ),
-                              
-                  ),
                  ),
                  tabPanel("Advanced Sabermetrics",
                           titlePanel("Advanced Sabermetrics"),
+                          p("On this page we have the scatterplot for our basic stats. The further to the top right of the graph, the better
+                            the season according to our research, as the player will have a more home runs and a better batting average. According to this graph,
+                          we would likely conclude that Barry Bonds had the best ever season in 2001. However, if we wanted to factor in Barry Bonds
+                            potential steroid use, that would instead fall to Babe Ruth in either 1920 or 1921, depending on preference. It is
+                            interesting to note that these seasons are extremely highly regarded in baseball history already, not necessarily
+                            proving our point, but suggesting that our data is more likely sound."),
+                          selectInput("player", "Select Player", choices = c("All", unique(df$PLAYER))),  # Dropdown for player selection
+                          plotlyOutput("scatterplot"), 
+                 ),
+                 tabPanel("Basic Stats",
+                          titlePanel("Basic Stats"),
                           p("On this page we have the scatterplot for our sabermetrics. The further to the top right of the graph, the better
                             the season according to our research, as the player will have a better WAAO and a better OPS+. According to this graph,
                           we would likely conclude that Barry Bonds had the best ever season in 2001. However, if we wanted to factor in Barry Bonds
                             potential steroid use, that would instead fall to Babe Ruth in either 1920 or 1921, depending on preference. It is
                             interesting to note that these seasons are extremely highly regarded in baseball history already, not necessarily
-                            proving our point, but suggesting that our data is more likely sound."),
-                          plotOutput("scatterplot"),
+                            proving our point, but suggesting that our data is more likely sound.")
                           ),
-                 tabPanel("Basic Stats"),
 )
 
 
@@ -119,15 +128,25 @@ server <- function(input, output) {
       return("7 times")
     }
   })
-  output$scatterplot <- renderPlot({
-    ggplot(df, aes(x = WAAO, y = OPS._2, label = player_szn, color = factor(PLAYER))) +
-      geom_point(size = 3) +
-      geom_text(size = 3, vjust = -0.5) +
-      labs(title = "WAAO vs OPS+", x = "WAAO", y = "OPS+") +
-      scale_color_discrete(name = "PLAYER") + 
-      theme(legend.position = "bottom", legend.box = "horizontal")
+  output$scatterplot <- renderPlotly({
+    filtered_df <- df  # Initialize with the full dataset
+    
+    # Check if "All" or a specific player is selected
+    if (input$player != "All") {
+      filtered_df <- df[df$PLAYER == input$player, ]  # Filter dataframe based on selected player
+    }
+    
+    # Create scatter plot using plotly
+    p <- plot_ly(data = filtered_df, x = ~WAAO, y = ~OPS._2, text = ~PLAYER, color = ~factor(YEAR),
+                 type = 'scatter', mode = 'markers')
+    
+    p <- add_text(p, text = ~PLAYER, showlegend = FALSE, textposition = "top right")
+    
+    p <- layout(p, title = "WAAO vs OPS+", xaxis = list(title = "WAAO"), yaxis = list(title = "OPS+"),
+                showlegend = TRUE)
+    
+    p  # Return the plotly plot
   })
 }
 
-# Run the application 
 shinyApp(ui = ui, server = server)
