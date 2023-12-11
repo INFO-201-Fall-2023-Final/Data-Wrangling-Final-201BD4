@@ -66,9 +66,12 @@ server <- function(input, output) {
     
     # Create scatter plot using plotly
     p <- plot_ly(data = filtered_df, x = ~WAAO, y = ~OPS._2, text = ~PLAYER, color = ~factor(YEAR),
-                 type = 'scatter', mode = 'markers') %>%
-      layout(title = "WAAO vs OPS._2", xaxis = list(title = "WAAO"), yaxis = list(title = "OPS._2"),
-             showlegend = TRUE)
+                 type = 'scatter', mode = 'markers')
+    
+    p <- add_text(p, text = ~PLAYER, showlegend = FALSE, textposition = "top right")
+    
+    p <- layout(p, title = "WAAO vs OPS._2", xaxis = list(title = "WAAO"), yaxis = list(title = "OPS._2"),
+                showlegend = TRUE)
     
     p  # Return the plotly plot
   })
