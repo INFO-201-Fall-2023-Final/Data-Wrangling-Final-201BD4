@@ -27,7 +27,9 @@ ui <- fluidPage(
 
         # Show a plot of the generated distribution
         mainPanel(
-           textOutput(outputId="hitScore")
+           textOutput(outputId="hitScore"),
+           tags$head(tags$style("#hitScore{font-size:100px}"
+           ))
         )
     )
 )
