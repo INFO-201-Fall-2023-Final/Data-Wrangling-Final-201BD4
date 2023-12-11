@@ -14,7 +14,8 @@ library(plotly)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
-  plotOutput("scatterplot"),
+  selectInput("player", "Select Player", choices = c("All", unique(df$PLAYER))),  # Dropdown for player selection
+  plotlyOutput("scatterplot"), 
   # Application title
   titlePanel("Frequency of High Caliber Seasons"),
   
@@ -55,13 +56,21 @@ server <- function(input, output) {
       return("7 times")
     }
   })
-  output$scatterplot <- renderPlot({
-    ggplot(df, aes(x = WAAO, y = OPS._2, label = PLAYER, color = factor(PLAYER))) +
-      geom_point(size = 3) +
-      geom_text(size = 3, vjust = -0.5) +
-      labs(title = "WAAO vs OPS._2", x = "WAAO", y = "OPS._2") +
-      scale_color_discrete(name = "PLAYER") + 
-     theme(legend.position = "bottom", legend.box = "horizontal")
+  output$scatterplot <- renderPlotly({
+    filtered_df <- df  # Initialize with the full dataset
+    
+    # Check if "All" or a specific player is selected
+    if (input$player != "All") {
+      filtered_df <- df[df$PLAYER == input$player, ]  # Filter dataframe based on selected player
+    }
+    
+    # Create scatter plot using plotly
+    p <- plot_ly(data = filtered_df, x = ~WAAO, y = ~OPS._2, text = ~PLAYER, color = ~factor(YEAR),
+                 type = 'scatter', mode = 'markers') %>%
+      layout(title = "WAAO vs OPS._2", xaxis = list(title = "WAAO"), yaxis = list(title = "OPS._2"),
+             showlegend = TRUE)
+    
+    p  # Return the plotly plot
   })
 }
 
