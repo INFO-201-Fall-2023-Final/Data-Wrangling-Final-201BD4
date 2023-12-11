@@ -31,14 +31,13 @@ ui <- navbarPage("Baseball's Greatest Hitting Season",
       While many are familiar with the home run, baseball's iconic hit over the wall, the reality of the sport is
       that there are many ways to be a good hitter. Some hitters specialize in getting on base as much as possible,
       which gives their team as many chances as possible to drive them in, some make their careers of hitting
-      as many home runs as possible, and some sit in the middle. "),
+      as many home runs as possible, and some sit in the middle. We decided to accept both angles of what matters to hitting, in both an advanced
+                            and more basic sense."),
                           
                           # Image
                           img("", src = "https://static01.nyt.com/images/2021/12/31/multimedia/30Novitzky/30Novitzky-articleLarge-v2.jpg?quality=75&auto=webp&disable=upscale"),
                           
                           p("Barry Bonds: one of the greatest hitters ever, but tainted by potential steroid use in the baseball community."),
-                          
-                          p("For example, Barry Bonds (above) is the all time leader in home runs, and considered by many as the greatest hitter ever."),
                           
                           # Header
                           h2("What is the statistical approach for accomplishing this?"),
@@ -49,10 +48,16 @@ ui <- navbarPage("Baseball's Greatest Hitting Season",
                             trendier baseball fan, who will often prefer to use the advanced sabermetrics to form their opinions. For this, we have used
                             WAAO (Offensive Wins Above Average) and OPS+ (On Base Plus Slugging normalized based on league average per year). On the other side
                             of the aisle are the baseball fans who prefer the stats that have been recorded since the game began, home runs and batting average.
-                            We respect that each group will want to use their own stats to create their own opinions, and thus have done analysis for each."),
+                            We respect that each group will want to use their own stats to create their own opinions, and thus have done analysis for each, which
+                            can be found in the respective tabs. For more information on calculation on how OPS+ is calculated, the first link below explains
+                            in detail (please note that the lack of widespread acceptance is talked about has changed, as the article is from 2010). For more
+                            information on why we used WAAO (referenced as WAA in the article), especially instead of WAR, reference the second link."),
                           
                           # URL
-                          a("Link to the Hitting Vault Article", href = "https://thehittingvault.com/3-basic-mlb-hitting-stats-that-define-a-great-hitter/"),
+                          a("Explanation on OPS+ Calculation", href = "https://library.fangraphs.com/offense/ops/"),
+                          p(""),
+                          
+                          a("Explanation on why we used WAAO", href = "https://sabr.org/journal/article/waa-vs-war-which-is-the-better-measure-for-overall-performance-in-mlb-wins-above-average-or-wins-above-replacement/"),
                           
                  ),
                  tabPanel("Frequency of High Caliber Seasons",
@@ -76,14 +81,23 @@ ui <- navbarPage("Baseball's Greatest Hitting Season",
                             
                             # Show a plot of the generated distribution
                             mainPanel(
-                              textOutput(outputId="hitScore")
+                              textOutput(outputId="hitScore"),
+                              tags$head(tags$style("#hitScore{font-size:25px}")),
                           ),
+                              
                   ),
                  ),
                  tabPanel("Advanced Sabermetrics",
+                          titlePanel("Advanced Sabermetrics"),
+                          p("On this page we have the scatterplot for our sabermetrics. The further to the top right of the graph, the better
+                            the season according to our research, as the player will have a better WAAO and a better OPS+. According to this graph,
+                          we would likely conclude that Barry Bonds had the best ever season in 2001. However, if we wanted to factor in Barry Bonds
+                            potential steroid use, that would instead fall to Babe Ruth in either 1920 or 1921, depending on preference. It is
+                            interesting to note that these seasons are extremely highly regarded in baseball history already, not necessarily
+                            proving our point, but suggesting that our data is more likely sound."),
                           plotOutput("scatterplot"),
                           ),
-                 tabPanel("No War"),
+                 tabPanel("Basic Stats"),
 )
 
 
@@ -106,11 +120,12 @@ server <- function(input, output) {
     }
   })
   output$scatterplot <- renderPlot({
-    ggplot(df, aes(x = WAAO, y = OPS._2, label = player_szn)) +
-      geom_point(size = 3, color = "blue") +
-      geom_text(size = 3, vjust = -0.5) +  # Adjust label position
+    ggplot(df, aes(x = WAAO, y = OPS._2, label = player_szn, color = factor(PLAYER))) +
+      geom_point(size = 3) +
+      geom_text(size = 3, vjust = -0.5) +
       labs(title = "WAAO vs OPS+", x = "WAAO", y = "OPS+") +
-      theme_minimal()
+      scale_color_discrete(name = "PLAYER") + 
+      theme(legend.position = "bottom", legend.box = "horizontal")
   })
 }
 
