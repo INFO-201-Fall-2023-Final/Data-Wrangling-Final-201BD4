@@ -98,7 +98,10 @@ ui <- navbarPage("Baseball's Greatest Hitting Season",
                           selectInput("player", "Select Player", choices = c("All", unique(df$PLAYER))),  # Dropdown for player selection
                           plotlyOutput("scatterplot"), 
                  ),
-                 tabPanel("Basic Stats"),
+                 tabPanel("Basic Stats",
+                          titlePanel("Basic"),
+                          selectInput("player2", "Select Player", choices = c("All", unique(df$PLAYER))), 
+                          plotlyOutput("scatterplot2"),),
 )
 
 
@@ -135,6 +138,25 @@ server <- function(input, output) {
     p <- add_text(p, text = ~PLAYER, showlegend = FALSE, textposition = "top right")
     
     p <- layout(p, title = "WAAO vs OPS._2", xaxis = list(title = "WAAO"), yaxis = list(title = "OPS._2"),
+                showlegend = TRUE)
+    
+    p  # Return the plotly plot
+  })
+  output$scatterplot2 <- renderPlotly({
+    filtered_df <- df  # Initialize with the full dataset
+    
+    # Check if "All" or a specific player is selected
+    if (input$player2 != "All") {
+      filtered_df <- df[df$PLAYER == input$player2, ]  # Filter dataframe based on selected player
+    }
+    
+    # Create scatter plot using plotly
+    p <- plot_ly(data = filtered_df, x = ~HR, y = ~BA, text = ~PLAYER, color = ~factor(YEAR),
+                 type = 'scatter', mode = 'markers')
+    
+    p <- add_text(p, text = ~PLAYER, showlegend = FALSE, textposition = "top right")
+    
+    p <- layout(p, title = "Home Runs vs Batting Average", xaxis = list(title = "Home Runs"), yaxis = list(title = "Batting Average"),
                 showlegend = TRUE)
     
     p  # Return the plotly plot
