@@ -45,7 +45,12 @@ ui <- fluidPage(
       tags$head(tags$style("#hitScore{font-size:10px}",
       ))
     )
+    mainPanel(
+      textOutput(outputId="decadesScore"),
+      tags$head(tags$style("#decadesScore{font-size:10px}",
+      ))
   )
+    )
 )
 
 # Define server logic required to draw a histogram
